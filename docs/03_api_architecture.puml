@@ -1,0 +1,243 @@
+@startuml API_Architecture
+!theme plain
+title eCafeteria XXI - API Architecture & REST Endpoints
+
+package "REST API Layer" {
+    class CategoryResource {
+        +POST /api/categories
+        +GET /api/categories
+        +GET /api/categories/{id}
+        +PUT /api/categories/{id}
+        +DELETE /api/categories/{id}
+        +PATCH /api/categories/{id}/activate
+        +GET /api/categories/active
+        --
+        -CategoryService categoryService
+        -CategoryMapper categoryMapper
+        --
+        +createCategory(CreateCategoryRequest)
+        +getCategories(SearchCategoryQuery, Page)
+        +getCategoryById(Long id)
+        +updateCategory(Long id, UpdateCategoryRequest)
+        +deleteCategory(Long id)
+        +activateCategory(Long id)
+        +getActiveCategories()
+    }
+
+    class ProductResource {
+        +POST /api/products
+        +GET /api/products
+        +GET /api/products/{id}
+        +PUT /api/products/{id}
+        +DELETE /api/products/{id}
+        +PATCH /api/products/{id}/stock
+        +GET /api/products/active
+        +GET /api/products/category/{categoryId}
+        +GET /api/products/low-stock
+        --
+        -ProductService productService
+        -ProductMapper productMapper
+        --
+        +createProduct(CreateProductRequest)
+        +getProducts(SearchProductQuery, Page)
+        +getProductById(Long id)
+        +updateProduct(Long id, UpdateProductRequest)
+        +deleteProduct(Long id)
+        +updateStock(Long id, int quantity)
+        +getActiveProducts()
+        +getProductsByCategory(Long categoryId)
+        +getLowStockProducts()
+    }
+
+    class UserResource {
+        +POST /api/users
+        +GET /api/users
+        +GET /api/users/{id}
+        +PUT /api/users/{id}
+        +DELETE /api/users/{id}
+        +GET /api/users/check-username
+        +GET /api/users/profile
+        --
+        -UserService userService
+        -UserMapper userMapper
+        --
+        +createUser(CreateUserRequest)
+        +getUsers(SearchUsersQuery, Page)
+        +getUserById(Long id)
+        +updateUser(Long id, UpdateUserRequest)
+        +deleteUser(Long id)
+        +checkUsernameExists(String username)
+        +getCurrentUserProfile()
+    }
+
+    class OrderResource {
+        +POST /api/orders
+        +GET /api/orders
+        +GET /api/orders/{id}
+        +POST /api/orders/{id}/items
+        +DELETE /api/orders/{id}/items/{itemId}
+        +PUT /api/orders/{id}/items/{itemId}
+        +PATCH /api/orders/{id}/confirm
+        +PATCH /api/orders/{id}/start-preparing
+        +PATCH /api/orders/{id}/ready
+        +PATCH /api/orders/{id}/deliver
+        +PATCH /api/orders/{id}/cancel
+        +GET /api/orders/status/{status}
+        +GET /api/orders/customer/{customerId}
+        +GET /api/orders/revenue/total
+        --
+        -OrderService orderService
+        --
+        +createOrder(CreateOrderRequest)
+        +getAllOrders()
+        +getOrderById(Long id)
+        +addItemToOrder(Long id, AddItemRequest)
+        +removeItemFromOrder(Long id, Long itemId)
+        +updateItemQuantity(Long id, Long itemId, int quantity)
+        +confirmOrder(Long id)
+        +startPreparingOrder(Long id)
+        +markOrderAsReady(Long id)
+        +deliverOrder(Long id)
+        +cancelOrder(Long id)
+        +getOrdersByStatus(OrderStatus status)
+        +getTotalRevenue()
+    }
+
+    class InventoryResource {
+        +POST /api/inventory
+        +GET /api/inventory
+        +GET /api/inventory/{id}
+        +PUT /api/inventory/{id}
+        +PATCH /api/inventory/{id}/quantity
+        +PATCH /api/inventory/{id}/add-quantity
+        +PATCH /api/inventory/{id}/remove-quantity
+        +GET /api/inventory/low-stock
+        +GET /api/inventory/reorder-point
+        +GET /api/inventory/out-of-stock
+        +GET /api/inventory/overstocked
+        --
+        -InventoryService inventoryService
+        -ProductService productService
+        --
+        +createInventory(CreateInventoryRequest)
+        +getAllInventories()
+        +getInventoryById(Long id)
+        +updateInventory(Long id, UpdateInventoryRequest)
+        +updateQuantity(Long id, int quantity)
+        +addQuantity(Long id, int quantity)
+        +removeQuantity(Long id, int quantity)
+        +getLowStockInventories()
+        +getInventoriesAtReorderPoint()
+        +getOutOfStockInventories()
+        +getOverstockedInventories()
+    }
+
+    class HealthController {
+        +GET /api/health
+        +GET /api/health/stats
+        --
+        +healthCheck()
+        +getStats()
+    }
+
+    class AuthApi {
+        +POST /api/auth/login
+        +POST /api/auth/refresh
+        --
+        +login(AuthRequest)
+        +refreshToken()
+    }
+}
+
+package "Response DTOs" {
+    class ApiResponse<T> {
+        -boolean success
+        -String message
+        -T data
+        -List<String> errors
+        -String path
+        -int status
+        -LocalDateTime timestamp
+        +success(T data)
+        +created(T data, String message)
+        +error(String message, int status)
+    }
+
+    class PagedResponse<T> {
+        -List<T> content
+        -int page
+        -int size
+        -long totalElements
+        -int totalPages
+        -boolean first
+        -boolean last
+        -boolean hasNext
+        -boolean hasPrevious
+        +of(List<T> content, int page, int size, long totalElements)
+    }
+}
+
+package "Cross-Cutting Features" {
+    annotation PreAuthorize {
+        +hasRole('ADMIN')
+        +hasRole('STAFF')
+        +hasRole('USER')
+    }
+
+    annotation Cacheable {
+        +value
+        +key
+    }
+
+    annotation CacheEvict {
+        +value
+        +allEntries
+    }
+
+    annotation Valid {
+    }
+
+    annotation RestController {
+    }
+
+    annotation RequestMapping {
+        +value
+    }
+}
+
+' All controllers return ApiResponse
+CategoryResource --> ApiResponse : returns
+ProductResource --> ApiResponse : returns
+UserResource --> ApiResponse : returns
+OrderResource --> ApiResponse : returns
+InventoryResource --> ApiResponse : returns
+HealthController --> ApiResponse : returns
+
+' Pagination support
+CategoryResource --> PagedResponse : uses
+ProductResource --> PagedResponse : uses
+UserResource --> PagedResponse : uses
+
+' Security annotations
+CategoryResource --> PreAuthorize : @PreAuthorize
+ProductResource --> PreAuthorize : @PreAuthorize
+UserResource --> PreAuthorize : @PreAuthorize
+OrderResource --> PreAuthorize : @PreAuthorize
+InventoryResource --> PreAuthorize : @PreAuthorize
+
+' Caching annotations
+CategoryResource --> Cacheable : @Cacheable
+CategoryResource --> CacheEvict : @CacheEvict
+ProductResource --> Cacheable : @Cacheable
+ProductResource --> CacheEvict : @CacheEvict
+UserResource --> Cacheable : @Cacheable
+UserResource --> CacheEvict : @CacheEvict
+
+' Validation
+CategoryResource --> Valid : @Valid
+ProductResource --> Valid : @Valid
+UserResource --> Valid : @Valid
+OrderResource --> Valid : @Valid
+InventoryResource --> Valid : @Valid
+
+@enduml

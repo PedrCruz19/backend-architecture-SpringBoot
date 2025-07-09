@@ -1,0 +1,174 @@
+@startuml Database_Schema
+!theme plain
+title eCafeteria XXI - Database Schema & Entity Relationships
+
+!define table(name) class name << (T,#FFAAAA) >>
+!define pk(x) <b><color:red>x</color></b>
+!define fk(x) <color:blue>x</color>
+!define uk(x) <color:green>x</color>
+
+table(categories) {
+    pk(id) : BIGINT
+    uk(name_word) : VARCHAR(255)
+    description_word : VARCHAR(255)
+    fk(parent_category_id) : BIGINT
+    status : BOOLEAN
+    registration_date : DATE
+    last_activity_change_date : DATE
+}
+
+table(products) {
+    pk(id) : BIGINT
+    uk(name_word) : VARCHAR(255)
+    description_word : VARCHAR(255)
+    price : DECIMAL(10,2)
+    fk(category_id) : BIGINT
+    image_url : VARCHAR(255)
+    stock_quantity : INTEGER
+    status : BOOLEAN
+    registration_date : DATE
+    last_activity_change_date : DATE
+}
+
+table(inventory) {
+    pk(id) : BIGINT
+    uk(fk(product_id)) : BIGINT
+    current_quantity : INTEGER
+    minimum_stock_level : INTEGER
+    maximum_stock_level : INTEGER
+    reorder_point : INTEGER
+    reorder_quantity : INTEGER
+    status : BOOLEAN
+    created_date : DATE
+    last_updated_date : DATE
+}
+
+table(t_user) {
+    pk(id) : BIGINT
+    version : BIGINT
+    uk(username) : VARCHAR(255)
+    password : VARCHAR(255)
+    full_name : VARCHAR(255)
+    enabled : BOOLEAN
+    created_at : TIMESTAMP
+    modified_at : TIMESTAMP
+    created_by : VARCHAR(255)
+    modified_by : VARCHAR(255)
+}
+
+table(user_authorities) {
+    fk(user_id) : BIGINT
+    authorities : VARCHAR(255)
+}
+
+table(orders) {
+    pk(id) : BIGINT
+    fk(customer_id) : BIGINT
+    status : VARCHAR(50)
+    total_amount : DECIMAL(10,2)
+    order_date : DATE
+    last_updated_date : DATE
+    notes : VARCHAR(1000)
+}
+
+table(order_items) {
+    pk(id) : BIGINT
+    fk(order_id) : BIGINT
+    fk(product_id) : BIGINT
+    quantity : INTEGER
+    unit_price : DECIMAL(10,2)
+    total_price : DECIMAL(10,2)
+}
+
+' Relationships with cardinality and constraints
+categories ||--o{ categories : "parent/child\n(self-referencing)"
+categories ||--o{ products : "1 to many\n(category_id FK)"
+products ||--|| inventory : "1 to 1\n(product_id FK UNIQUE)"
+t_user ||--o{ user_authorities : "1 to many\n(user_id FK)"
+t_user ||--o{ orders : "1 to many\n(customer_id FK)"
+orders ||--o{ order_items : "1 to many\n(order_id FK)"
+products ||--o{ order_items : "1 to many\n(product_id FK)"
+
+' Constraints and Indexes
+note top of categories
+**Constraints:**
+- UK: name_word (unique)
+- CK: status IN (true, false)
+- FK: parent_category_id -> categories(id)
+
+**Indexes:**
+- IDX: name_word
+- IDX: parent_category_id
+- IDX: status, registration_date
+end note
+
+note top of products
+**Constraints:**
+- UK: name_word (unique)
+- CK: price >= 0
+- CK: stock_quantity >= 0
+- CK: status IN (true, false)
+- FK: category_id -> categories(id)
+
+**Indexes:**
+- IDX: name_word
+- IDX: category_id
+- IDX: status, price
+- IDX: stock_quantity
+end note
+
+note top of inventory
+**Constraints:**
+- UK: product_id (unique)
+- CK: current_quantity >= 0
+- CK: minimum_stock_level >= 0
+- CK: maximum_stock_level >= minimum_stock_level
+- CK: reorder_point >= 0
+- CK: reorder_quantity >= 0
+- FK: product_id -> products(id)
+
+**Indexes:**
+- IDX: product_id
+- IDX: current_quantity
+- IDX: status
+end note
+
+note top of orders
+**Constraints:**
+- CK: status IN ('PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'DELIVERED', 'CANCELLED')
+- CK: total_amount >= 0
+- FK: customer_id -> t_user(id)
+
+**Indexes:**
+- IDX: customer_id
+- IDX: status
+- IDX: order_date
+- IDX: status, order_date
+end note
+
+note top of order_items
+**Constraints:**
+- CK: quantity > 0
+- CK: unit_price >= 0
+- CK: total_price >= 0
+- FK: order_id -> orders(id)
+- FK: product_id -> products(id)
+
+**Indexes:**
+- IDX: order_id
+- IDX: product_id
+end note
+
+note top of t_user
+**Constraints:**
+- UK: username (unique email)
+- CK: username LIKE '%@%' (email format)
+- CK: enabled IN (true, false)
+
+**Indexes:**
+- IDX: username
+- IDX: enabled
+- IDX: created_at
+end note
+
+@enduml

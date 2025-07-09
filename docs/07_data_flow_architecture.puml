@@ -1,0 +1,95 @@
+@startuml Data_Flow_Architecture
+!theme plain
+title eCafeteria XXI - Data Flow & Request Processing
+
+participant "Frontend Client" as client
+participant "CORS Filter" as cors
+participant "Security Filter" as security
+participant "REST Controller" as controller
+participant "API Response Wrapper" as response
+participant "Service Layer" as service
+participant "Repository Layer" as repository
+participant "Spring Data JPA" as jpa
+participant "PostgreSQL Database" as database
+participant "Cache Manager" as cache
+participant "Exception Handler" as exception
+
+== Successful Request Flow ==
+client -> cors : HTTP Request\n(with CORS headers)
+cors -> security : Validate CORS
+security -> security : Authenticate JWT Token
+security -> security : Authorize User Permissions
+security -> controller : Authenticated Request
+
+controller -> controller : @Valid - Validate Request DTOs
+controller -> cache : Check Cache\n(@Cacheable)
+
+alt Cache Hit
+    cache -> controller : Cached Data
+else Cache Miss
+    controller -> service : Business Logic Call
+    service -> service : Apply Business Rules
+    service -> repository : Domain Repository Call
+    repository -> jpa : Spring Data JPA Call
+    jpa -> database : SQL Query
+    database -> jpa : Result Set
+    jpa -> repository : Entity Objects
+    repository -> service : Domain Objects
+    service -> controller : Processed Data
+    controller -> cache : Update Cache\n(@CacheEvict if modify)
+end
+
+controller -> response : Wrap in ApiResponse<T>
+response -> controller : Standardized Response
+controller -> client : JSON Response\n(200 OK)
+
+== Error Handling Flow ==
+controller -> service : Business Logic Call
+service -> service : Business Rule Violation
+service -> exception : Throw Domain Exception
+
+exception -> exception : @ExceptionHandler
+exception -> response : Create Error ApiResponse
+response -> exception : Error Response
+exception -> client : JSON Error Response\n(400/404/409/500)
+
+== Caching Strategy ==
+note over cache
+**Cache Regions:**
+- categories
+- products
+- inventory
+- orders
+- users
+
+**Cache Keys:**
+- Entity ID: "product_123"
+- Search: "page_0_size_10_query_active"
+- Custom: "active_categories"
+
+**Cache Invalidation:**
+- @CacheEvict on CREATE/UPDATE/DELETE
+- allEntries=true for related data
+end note
+
+== Validation & Security ==
+note over controller, security
+**Request Validation:**
+- @Valid for DTOs
+- Bean Validation annotations
+- Custom business validations
+
+**Security Layers:**
+- JWT Authentication
+- @PreAuthorize for endpoints
+- Role-based access control
+- CORS configuration
+
+**Response Standardization:**
+- ApiResponse<T> wrapper
+- Consistent error format
+- Pagination support
+- Timestamp inclusion
+end note
+
+@enduml

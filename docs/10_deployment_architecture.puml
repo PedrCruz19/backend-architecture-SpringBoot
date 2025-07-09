@@ -1,0 +1,163 @@
+@startuml Deployment_Architecture
+!theme plain
+title eCafeteria XXI - Deployment & Configuration Architecture
+
+package "Spring Boot Application" {
+    node "Application Container" {
+        component "eCafeteria XXI Backend" {
+            [REST API Layer] as api
+            [Security Layer] as security
+            [Service Layer] as services
+            [Repository Layer] as repos
+            [Domain Model] as domain
+        }
+
+        component "Spring Framework" {
+            [Spring Boot Starter] as boot
+            [Spring Web MVC] as web
+            [Spring Security] as sec
+            [Spring Data JPA] as jpa
+            [Spring Cache] as cache
+            [Spring Validation] as validation
+        }
+
+        component "Configuration" {
+            [SecurityConfig] as secConfig
+            [JpaConfig] as jpaConfig
+            [CacheConfig] as cacheConfig
+            [CorsConfig] as corsConfig
+            [ApiConfig] as apiConfig
+        }
+    }
+}
+
+package "Database Layer" {
+    database "PostgreSQL" {
+        [Categories Schema] as catSchema
+        [Products Schema] as prodSchema
+        [Users Schema] as userSchema
+        [Orders Schema] as orderSchema
+        [Inventory Schema] as invSchema
+    }
+}
+
+package "External Integrations" {
+    [Frontend Applications] as frontend
+    [Mobile Apps] as mobile
+    [Third-party APIs] as thirdparty
+    [Monitoring Tools] as monitoring
+}
+
+package "Infrastructure Components" {
+    [Load Balancer] as lb
+    [Application Server] as appserver
+    [Database Server] as dbserver
+    [Cache Server] as cacheserver
+    [File Storage] as storage
+}
+
+' Connections
+frontend --> lb : HTTPS/REST
+mobile --> lb : HTTPS/REST
+lb --> appserver : HTTP
+appserver --> "Application Container" : Deploy
+
+api --> web : Uses
+security --> sec : Uses
+services --> boot : Uses
+repos --> jpa : Uses
+
+secConfig --> sec : Configures
+jpaConfig --> jpa : Configures
+cacheConfig --> cache : Configures
+corsConfig --> web : Configures
+
+repos --> dbserver : JDBC
+dbserver --> "PostgreSQL" : Hosts
+
+cache --> cacheserver : Redis/In-Memory
+"Application Container" --> storage : File Upload/Download
+"Application Container" --> monitoring : Metrics/Logs
+
+' Deployment Details
+note top of "Application Container"
+**Runtime Environment:**
+- Java 17+
+- Spring Boot 3.2.3
+- Embedded Tomcat
+- HikariCP Connection Pool
+
+**JVM Configuration:**
+- Xmx2048m
+- Xms512m
+- -XX:+UseG1GC
+
+**Profiles:**
+- dev, test, prod
+- Feature toggles
+- Environment-specific configs
+end note
+
+note top of PostgreSQL
+**Database Configuration:**
+- PostgreSQL 15+
+- Connection Pool: 20 max
+- Transaction Isolation: READ_COMMITTED
+- Auto-commit: false
+
+**Schema Management:**
+- JPA DDL Auto: validate (prod)
+- Hibernate Dialect: PostgreSQL
+- Entity Scanning: Package-based
+
+**Performance:**
+- Indexes on FK columns
+- Query optimization
+- Connection pooling
+end note
+
+note top of frontend
+**API Integration:**
+- RESTful JSON APIs
+- JWT Authentication
+- CORS Support
+- OpenAPI/Swagger Docs
+
+**Response Format:**
+- Standardized ApiResponse<T>
+- Pagination support
+- Error handling
+- Timestamp consistency
+end note
+
+' Configuration Details
+note bottom of secConfig
+**Security Features:**
+- JWT Token Authentication
+- Role-based Authorization
+- Password Encryption (BCrypt)
+- CORS Configuration
+- Method-level Security
+
+**Endpoints Security:**
+- Public: /api/auth/**, /api/health
+- User: /api/orders/**, /api/users/profile
+- Staff: /api/inventory/**, /api/products/stock
+- Admin: /api/users/**, /api/categories/**
+end note
+
+note bottom of cacheConfig
+**Caching Strategy:**
+- In-Memory: ConcurrentMapCacheManager
+- Cache Regions: categories, products, users, orders, inventory
+- TTL: 1 hour default
+- Eviction: LRU
+- Cache Keys: ID-based, Query-based
+
+**Cache Operations:**
+- @Cacheable: Read operations
+- @CacheEvict: Write operations
+- @CachePut: Update operations
+end note
+
+@enduml

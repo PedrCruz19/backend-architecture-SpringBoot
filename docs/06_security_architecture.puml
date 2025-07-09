@@ -1,0 +1,192 @@
+@startuml Security_Architecture
+!theme plain
+title eCafeteria XXI - Security Architecture
+
+package "Authentication & Authorization" {
+    class SecurityConfig {
+        -UserRepository userRepository
+        --
+        +@Bean securityFilterChain(HttpSecurity): SecurityFilterChain
+        +@Bean passwordEncoder(): PasswordEncoder
+        +@Bean jwtDecoder(): JwtDecoder
+        +@Bean jwtEncoder(): JwtEncoder
+        --
+        +configureHttpSecurity()
+        +configureJwtAuthentication()
+        +configureCorsPolicy()
+    }
+
+    class AuthApi {
+        -AuthenticationManager authenticationManager
+        -JwtEncoder jwtEncoder
+        --
+        +POST /api/auth/login
+        +POST /api/auth/refresh
+        --
+        +login(AuthRequest): ResponseEntity<String>
+        +refreshToken(): ResponseEntity<String>
+    }
+
+    class User {
+        -String username
+        -String password
+        -Set<Role> authorities
+        -boolean enabled
+        -boolean accountNonExpired
+        -boolean accountNonLocked
+        -boolean credentialsNonExpired
+        --
+        +getAuthorities(): Collection<GrantedAuthority>
+        +isAccountNonExpired(): boolean
+        +isAccountNonLocked(): boolean
+        +isCredentialsNonExpired(): boolean
+        +isEnabled(): boolean
+    }
+
+    class Role {
+        -String authority
+        --
+        +USER_ADMIN: String = "USER_ADMIN"
+        +CUSTOMER: String = "CUSTOMER"
+        +SUPPLIER: String = "SUPPLIER"
+        --
+        +getAuthority(): String
+    }
+
+    class UserService {
+        -UserRepository userRepo
+        -PasswordEncoder passwordEncoder
+        --
+        +loadUserByUsername(String): UserDetails
+        +create(CreateUserRequest): User
+        +update(Long, EditUserRequest): User
+        +delete(Long): User
+    }
+}
+
+package "Security Annotations & Features" {
+    annotation PreAuthorize {
+        +hasRole('ADMIN')
+        +hasRole('STAFF')
+        +hasRole('USER')
+        +hasRole('CUSTOMER')
+        +#id == authentication.principal.id
+    }
+
+    annotation Secured {
+        +ROLE_ADMIN
+        +ROLE_STAFF
+        +ROLE_USER
+    }
+
+    class CorsConfig {
+        --
+        +@Bean corsConfigurationSource(): CorsConfigurationSource
+        +addCorsMappings(CorsRegistry): void
+        --
+        +allowedOriginPatterns: "*"
+        +allowedMethods: GET, POST, PUT, DELETE, PATCH, OPTIONS
+        +allowedHeaders: "*"
+        +allowCredentials: true
+        +maxAge: 3600
+    }
+}
+
+package "Role-Based Access Control" {
+    class CategoryResource {
+        +@PreAuthorize("hasRole('ADMIN')") createCategory()
+        +@PreAuthorize("hasRole('ADMIN')") updateCategory()
+        +@PreAuthorize("hasRole('ADMIN')") deleteCategory()
+        +@PreAuthorize("hasRole('ADMIN')") activateCategory()
+        +getCategories() // Public
+        +getCategoryById() // Public
+        +getActiveCategories() // Public
+    }
+
+    class ProductResource {
+        +@PreAuthorize("hasRole('ADMIN')") createProduct()
+        +@PreAuthorize("hasRole('ADMIN')") updateProduct()
+        +@PreAuthorize("hasRole('ADMIN')") deleteProduct()
+        +@PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')") updateStock()
+        +@PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')") getLowStockProducts()
+        +getProducts() // Public
+        +getProductById() // Public
+        +getActiveProducts() // Public
+    }
+
+    class UserResource {
+        +@PreAuthorize("hasRole('ADMIN')") createUser()
+        +@PreAuthorize("hasRole('ADMIN')") getUsers()
+        +@PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id") getUserById()
+        +@PreAuthorize("hasRole('ADMIN')") updateUser()
+        +@PreAuthorize("hasRole('ADMIN')") deleteUser()
+        +checkUsernameExists() // Public
+        +getCurrentUserProfile() // Authenticated users
+    }
+
+    class OrderResource {
+        +@PreAuthorize("hasRole('USER') or hasRole('CUSTOMER')") createOrder()
+        +@PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')") getAllOrders()
+        +@PreAuthorize("hasRole('ADMIN') or hasRole('STAFF') or @orderService.isOrderOwner(#id, authentication.principal.id)") getOrderById()
+        +@PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')") confirmOrder()
+        +@PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')") startPreparingOrder()
+        +@PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')") markOrderAsReady()
+        +@PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')") deliverOrder()
+    }
+
+    class InventoryResource {
+        +@PreAuthorize("hasRole('ADMIN')") createInventory()
+        +@PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')") getAllInventories()
+        +@PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')") updateInventory()
+        +@PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')") updateQuantity()
+        +@PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')") getLowStockInventories()
+    }
+}
+
+' Security relationships
+User --|> UserDetails : implements
+Role --|> GrantedAuthority : implements
+UserService --|> UserDetailsService : implements
+SecurityConfig --> UserService : uses
+AuthApi --> UserService : uses
+AuthApi --> JwtEncoder : uses
+
+' Security annotations usage
+CategoryResource --> PreAuthorize : uses
+ProductResource --> PreAuthorize : uses
+UserResource --> PreAuthorize : uses
+OrderResource --> PreAuthorize : uses
+InventoryResource --> PreAuthorize : uses
+
+@enduml
+
+' Separate sequence diagram for JWT Security Flow
+@startuml JWT_Security_Flow
+!theme plain
+title JWT Security Authentication Flow
+
+actor Client
+participant AuthApi
+participant UserService
+participant SecurityConfig
+participant JwtEncoder
+database Database as "Database"
+
+Client -> AuthApi : POST /api/auth/login {username, password}
+AuthApi -> UserService : loadUserByUsername(username)
+UserService -> Database : findByUsername(username)
+Database -> UserService : User
+UserService -> AuthApi : UserDetails
+AuthApi -> SecurityConfig : authenticate(username, password)
+SecurityConfig -> AuthApi : Authentication
+AuthApi -> JwtEncoder : encode(Authentication)
+JwtEncoder -> AuthApi : JWT Token
+AuthApi -> Client : JWT Token
+
+note over Client : Store JWT Token
+
+Client -> "Any Protected Endpoint" : Request + Authorization: Bearer {JWT}
+"Any Protected Endpoint" -> SecurityConfig : Validate JWT
+SecurityConfig -> "Any Protected Endpoint" : Authentication
+"Any Protected Endpoint" -> Client : Protected Resource
+@enduml

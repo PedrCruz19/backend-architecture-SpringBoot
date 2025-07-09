@@ -1,0 +1,233 @@
+@startuml Infrastructure_Layer
+!theme plain
+title eCafeteria XXI - Infrastructure & Repository Layer
+
+' Define JpaRepository interface first (missing definition)
+interface JpaRepository
+
+package "Domain Repositories (Interfaces)" {
+    interface CategoryRepository {
+        +save(Category): Category
+        +saveAll(Iterable<Category>): List<Category>
+        +findById(Long): Optional<Category>
+        +getById(Long): Category
+        +findAll(): List<Category>
+        +searchCategories(Page, SearchCategoryQuery): List<Category>
+        +findByName(Word): List<Category>
+        +findByActivityStatus(ActivityStatus): List<Category>
+        +delete(Category): void
+    }
+
+    interface ProductRepository {
+        +save(Product): Product
+        +saveAll(Iterable<Product>): List<Product>
+        +findById(Long): Optional<Product>
+        +getById(Long): Product
+        +findAll(): List<Product>
+        +searchProducts(Page, SearchProductQuery): List<Product>
+        +findByCategoryId(Long): List<Product>
+        +findByActivityStatus(ActivityStatus): List<Product>
+        +findByName(Word): List<Product>
+        +findByPriceLessThan(BigDecimal): List<Product>
+        +findByStockQuantityLessThan(int): List<Product>
+        +delete(Product): void
+    }
+
+    interface UserRepository {
+        +save(User): User
+        +findById(Long): Optional<User>
+        +getById(Long): User
+        +getByIdAndVersion(Long, Long): User
+        +findByUsername(String): Optional<User>
+        +searchUsers(Page, SearchUsersQuery): List<User>
+    }
+
+    interface OrderRepository {
+        +save(Order): Order
+        +saveAll(Iterable<Order>): List<Order>
+        +findById(Long): Optional<Order>
+        +getById(Long): Order
+        +findAll(): List<Order>
+        +findByStatus(OrderStatus): List<Order>
+        +findByCustomer(User): List<Order>
+        +findByCustomerId(Long): List<Order>
+        +findActiveOrders(): List<Order>
+        +findByTotalAmountBetween(BigDecimal, BigDecimal): List<Order>
+        +countByStatus(OrderStatus): long
+        +delete(Order): void
+    }
+
+    interface InventoryRepository {
+        +save(Inventory): Inventory
+        +saveAll(Iterable<Inventory>): List<Inventory>
+        +findById(Long): Optional<Inventory>
+        +getById(Long): Inventory
+        +findAll(): List<Inventory>
+        +findByProduct(Product): Optional<Inventory>
+        +findByProductId(Long): Optional<Inventory>
+        +findByActivityStatus(ActivityStatus): List<Inventory>
+        +findBelowMinimumStock(): List<Inventory>
+        +findAtReorderPoint(): List<Inventory>
+        +findOutOfStock(): List<Inventory>
+        +findAboveMaximumStock(): List<Inventory>
+        +existsByProduct(Product): boolean
+        +delete(Inventory): void
+    }
+}
+
+package "Spring Data JPA Repositories" {
+    interface SpringDataCategoryRepository {
+        +findByName(Word): List<Category>
+        +findByActivityStatus(ActivityStatus): List<Category>
+        +searchCategories(Page, SearchCategoryQuery): List<Category>
+    }
+
+    interface SpringDataProductRepository {
+        +findByName(Word): List<Product>
+        +findByCategoryId(Long): List<Product>
+        +findByActivityStatus(ActivityStatus): List<Product>
+        +findByPriceLessThan(BigDecimal): List<Product>
+        +findByStockQuantityLessThan(int): List<Product>
+        +searchProducts(Page, SearchProductQuery): List<Product>
+    }
+
+    interface SpringDataUserRepository {
+        +findByUsername(String): Optional<User>
+        +searchUsers(Page, SearchUsersQuery): List<User>
+    }
+
+    interface SpringDataOrderRepository {
+        +findByStatus(OrderStatus): List<Order>
+        +findByCustomer(User): List<Order>
+        +findByCustomerId(Long): List<Order>
+        +findByCustomerAndStatus(User, OrderStatus): List<Order>
+        +findByTotalAmountBetween(BigDecimal, BigDecimal): List<Order>
+        +countByStatus(OrderStatus): long
+        +@Query("SELECT o FROM Order o WHERE o.status IN ('PENDING', 'CONFIRMED', 'PREPARING', 'READY')") findActiveOrders(): List<Order>
+    }
+
+    interface SpringDataInventoryRepository {
+        +findByProduct(Product): Optional<Inventory>
+        +findByProductId(Long): Optional<Inventory>
+        +findByActivityStatus(ActivityStatus): List<Inventory>
+        +findByCurrentQuantityLessThan(int): List<Inventory>
+        +@Query("SELECT i FROM Inventory i WHERE i.currentQuantity < i.minimumStockLevel") findBelowMinimumStock(): List<Inventory>
+        +@Query("SELECT i FROM Inventory i WHERE i.currentQuantity <= i.reorderPoint") findAtReorderPoint(): List<Inventory>
+        +@Query("SELECT i FROM Inventory i WHERE i.currentQuantity = 0") findOutOfStock(): List<Inventory>
+        +@Query("SELECT i FROM Inventory i WHERE i.currentQuantity > i.maximumStockLevel") findAboveMaximumStock(): List<Inventory>
+        +existsByProduct(Product): boolean
+    }
+}
+
+package "Repository Implementations" {
+    class CategoryRepositoryImpl {
+        -SpringDataCategoryRepository springDataCategoryRepository
+        --
+        +All CategoryRepository methods implemented
+    }
+
+    class ProductRepositoryImpl {
+        -SpringDataProductRepository springDataProductRepository
+        --
+        +All ProductRepository methods implemented
+    }
+
+    class UserRepositoryImpl {
+        -SpringDataUserRepository springDataUserRepository
+        --
+        +All UserRepository methods implemented
+    }
+
+    class OrderRepositoryImpl {
+        -SpringDataOrderRepository springDataOrderRepository
+        --
+        +All OrderRepository methods implemented
+    }
+
+    class InventoryRepositoryImpl {
+        -SpringDataInventoryRepository springDataInventoryRepository
+        --
+        +All InventoryRepository methods implemented
+    }
+}
+
+package "JPA Configuration" {
+    class JpaConfig {
+        +@EnableJpaRepositories
+        +@EnableJpaAuditing
+        +auditorProvider(): AuditorAware<String>
+    }
+
+    class CategoryManagementConfig {
+        +@EntityScan("...categorymanagement.domain.model")
+        +@EnableJpaRepositories("...categorymanagement")
+    }
+
+    class ProductManagementConfig {
+        +@EntityScan("...productmanagement.domain.model")
+        +@EnableJpaRepositories("...productmanagement")
+    }
+
+    class OrderManagementConfig {
+        +@EntityScan("...ordermanagement.domain.model")
+        +@EnableJpaRepositories("...ordermanagement")
+    }
+
+    class InventoryManagementConfig {
+        +@EntityScan("...inventorymanagement.domain.model")
+        +@EnableJpaRepositories("...inventorymanagement")
+    }
+
+    class UserManagementConfig {
+        +@EntityScan("...usermanagement.domain.model")
+        +@EnableJpaRepositories("...usermanagement")
+    }
+}
+
+package "PostgreSQL Database" <<Database>> {
+    entity "categories" as cat_table
+    entity "products" as prod_table
+    entity "users" as user_table
+    entity "orders" as order_table
+    entity "order_items" as order_items_table
+    entity "inventory" as inv_table
+}
+
+
+' Repository implementations
+CategoryRepository <|.. CategoryRepositoryImpl
+ProductRepository <|.. ProductRepositoryImpl
+UserRepository <|.. UserRepositoryImpl
+OrderRepository <|.. OrderRepositoryImpl
+InventoryRepository <|.. InventoryRepositoryImpl
+
+' Spring Data JPA inheritance
+SpringDataCategoryRepository --|> JpaRepository
+SpringDataProductRepository --|> JpaRepository
+SpringDataUserRepository --|> JpaRepository
+SpringDataOrderRepository --|> JpaRepository
+SpringDataInventoryRepository --|> JpaRepository
+
+' Implementation dependencies
+CategoryRepositoryImpl --> SpringDataCategoryRepository
+ProductRepositoryImpl --> SpringDataProductRepository
+UserRepositoryImpl --> SpringDataUserRepository
+OrderRepositoryImpl --> SpringDataOrderRepository
+InventoryRepositoryImpl --> SpringDataInventoryRepository
+
+' Database connections
+SpringDataCategoryRepository --> cat_table
+SpringDataProductRepository --> prod_table
+SpringDataUserRepository --> user_table
+SpringDataOrderRepository --> order_table
+SpringDataOrderRepository --> order_items_table
+SpringDataInventoryRepository --> inv_table
+
+' Annotations
+note top of CategoryRepositoryImpl : @Repository
+note top of ProductRepositoryImpl : @Repository
+note top of UserRepositoryImpl : @Repository
+note top of OrderRepositoryImpl : @Repository
+note top of InventoryRepositoryImpl : @Repository
+
+@enduml

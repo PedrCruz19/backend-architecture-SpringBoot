@@ -1,0 +1,180 @@
+@startuml Domain_Model
+!theme plain
+title eCafeteria XXI - Domain Model
+
+package "Category Management" {
+    class Category {
+        -Long id
+        -Word name
+        -Word description
+        -Category parentCategory
+        -Set<Category> subcategories
+        -ActivityStatus activityStatus
+        -Date registrationDate
+        -Date lastActivityChangeDate
+        +changeName(Word name)
+        +changeDescription(Word description)
+        +addSubcategory(Category subcategory)
+        +isActive()
+        +activate()
+        +deactivate()
+    }
+}
+
+package "Product Management" {
+    class Product {
+        -Long id
+        -Word name
+        -Word description
+        -BigDecimal price
+        -Category category
+        -ActivityStatus activityStatus
+        -Date registrationDate
+        -Date lastActivityChangeDate
+        -String imageUrl
+        -int stockQuantity
+        +changeName(Word name)
+        +changeDescription(Word description)
+        +changePrice(BigDecimal price)
+        +changeCategory(Category category)
+        +updateStockQuantity(int quantity)
+        +isActive()
+        +activate()
+        +deactivate()
+    }
+}
+
+package "User Management" {
+    class User {
+        -Long id
+        -String username
+        -String password
+        -String fullName
+        -boolean enabled
+        -Set<Role> authorities
+        -LocalDateTime createdAt
+        -LocalDateTime modifiedAt
+        -String createdBy
+        -Long version
+        +isAccountNonExpired()
+        +isAccountNonLocked()
+        +isCredentialsNonExpired()
+        +anonymizeAndDisable()
+    }
+
+    class Role {
+        -String authority
+        +USER_ADMIN: String
+        +CUSTOMER: String
+        +SUPPLIER: String
+    }
+}
+
+package "Order Management" {
+    class Order {
+        -Long id
+        -User customer
+        -List<OrderItem> items
+        -OrderStatus status
+        -BigDecimal totalAmount
+        -Date orderDate
+        -Date lastUpdatedDate
+        -String notes
+        +addItem(Product, int, BigDecimal)
+        +removeItem(Long itemId)
+        +updateItemQuantity(Long itemId, int quantity)
+        +confirm()
+        +startPreparing()
+        +markAsReady()
+        +deliver()
+        +cancel()
+        +isActive()
+        +canBeModified()
+    }
+
+    class OrderItem {
+        -Long id
+        -Order order
+        -Product product
+        -int quantity
+        -BigDecimal unitPrice
+        -BigDecimal totalPrice
+        +updateQuantity(int newQuantity)
+        +updateUnitPrice(BigDecimal newUnitPrice)
+        +calculateTotalPrice()
+    }
+
+    enum OrderStatus {
+        PENDING
+        CONFIRMED
+        PREPARING
+        READY
+        DELIVERED
+        CANCELLED
+        +isPending()
+        +isConfirmed()
+        +canBeModified()
+        +canBeCancelled()
+    }
+}
+
+package "Inventory Management" {
+    class Inventory {
+        -Long id
+        -Product product
+        -int currentQuantity
+        -int minimumStockLevel
+        -int maximumStockLevel
+        -int reorderPoint
+        -int reorderQuantity
+        -ActivityStatus activityStatus
+        -Date createdDate
+        -Date lastUpdatedDate
+        +updateQuantity(int quantity)
+        +addQuantity(int quantity)
+        +removeQuantity(int quantity)
+        +isBelowMinimumStock()
+        +isAtReorderPoint()
+        +isOutOfStock()
+        +isAboveMaximumStock()
+    }
+}
+
+package "Domain Value Objects" {
+    class Word {
+        -String word
+        +getWord()
+    }
+
+    class Date {
+        -LocalDate date
+        +now()
+        +date()
+    }
+
+    class ActivityStatus {
+        -boolean status
+        +isActive()
+    }
+}
+
+' Relationships
+Product }o-- Category : belongs to
+Product ||--o{ Inventory : has
+Order }o-- User : placed by
+Order ||--o{ OrderItem : contains
+OrderItem }o-- Product : references
+User ||--o{ Role : has
+Category ||--o{ Category : parent/child
+
+Product --> Word : name, description
+Category --> Word : name, description
+Product --> ActivityStatus
+Category --> ActivityStatus
+Inventory --> ActivityStatus
+Product --> Date : registration, lastActivity
+Category --> Date : registration, lastActivity
+Order --> Date : orderDate, lastUpdated
+Inventory --> Date : created, lastUpdated
+
+@enduml

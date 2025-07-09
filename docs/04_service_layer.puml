@@ -1,0 +1,172 @@
+@startuml Service_Layer_Architecture
+!theme plain
+title eCafeteria XXI - Service Layer Architecture
+
+package "Application Services" {
+    interface CategoryService {
+        +findCategoryByName(String name): Optional<Category>
+        +createCategory(CreateCategoryRequest): Category
+        +createsubCategory(CreateCategoryRequest, Long parentId): Category
+        +editCategory(Long id, CreateCategoryRequest): Category
+        +searchCategories(SearchCategoryQuery, Page): List<Category>
+        +getById(Long id): Category
+        +deleteCategory(Long id): Category
+        +findActiveCategories(): List<Category>
+    }
+
+    class CategoryServiceImpl {
+        -CategoryRepository repository
+        --
+        +findCategoryByName(String name): Optional<Category>
+        +createCategory(CreateCategoryRequest): Category
+        +createsubCategory(CreateCategoryRequest, Long parentId): Category
+        +editCategory(Long id, CreateCategoryRequest): Category
+        +searchCategories(SearchCategoryQuery, Page): List<Category>
+        +getById(Long id): Category
+        +deleteCategory(Long id): Category
+        +findActiveCategories(): List<Category>
+    }
+
+    interface ProductService {
+        +findProductByName(String name): Optional<Product>
+        +createProduct(CreateProductRequest): Product
+        +editProduct(Long id, CreateProductRequest): Product
+        +searchProducts(SearchProductQuery, Page): List<Product>
+        +getById(Long id): Product
+        +deleteProduct(Long id): Product
+        +updateStock(Long id, int quantity): Product
+        +findAll(): List<Product>
+        +findActiveProducts(): List<Product>
+        +findById(Long id): Optional<Product>
+    }
+
+    class ProductServiceImpl {
+        -ProductRepository repository
+        -CategoryRepository categoryRepository
+        --
+        +findProductByName(String name): Optional<Product>
+        +createProduct(CreateProductRequest): Product
+        +editProduct(Long id, CreateProductRequest): Product
+        +searchProducts(SearchProductQuery, Page): List<Product>
+        +getById(Long id): Product
+        +deleteProduct(Long id): Product
+        +updateStock(Long id, int quantity): Product
+        +findAll(): List<Product>
+        +findActiveProducts(): List<Product>
+        +findById(Long id): Optional<Product>
+    }
+
+    class UserService {
+        -UserRepository userRepo
+        -EditUserMapper userEditMapper
+        -PasswordEncoder passwordEncoder
+        --
+        +create(CreateUserRequest): User
+        +update(Long id, EditUserRequest): User
+        +update(Long id, EditUserRequest, Long version): User
+        +upsert(CreateUserRequest): User
+        +delete(Long id): User
+        +delete(Long id, Long version): User
+        +loadUserByUsername(String username): UserDetails
+        +usernameExists(String username): boolean
+        +getUser(Long id): User
+        +searchUsers(Page, SearchUsersQuery): List<User>
+    }
+
+    interface OrderService {
+        +createOrder(User customer, String notes): Order
+        +createOrder(Long customerId, String notes): Order
+        +addItemToOrder(Long orderId, Product product, int quantity, BigDecimal unitPrice): Order
+        +addItemToOrder(Long orderId, Long productId, int quantity): Order
+        +removeItemFromOrder(Long orderId, Long itemId): Order
+        +updateItemQuantity(Long orderId, Long itemId, int newQuantity): Order
+        +confirmOrder(Long orderId): Order
+        +startPreparingOrder(Long orderId): Order
+        +markOrderAsReady(Long orderId): Order
+        +deliverOrder(Long orderId): Order
+        +cancelOrder(Long orderId): Order
+        +findAll(): List<Order>
+        +findByStatus(OrderStatus status): List<Order>
+        +findByCustomerId(Long customerId): List<Order>
+        +getTotalRevenue(): BigDecimal
+        +getActiveOrderCount(): long
+    }
+
+    class OrderServiceImpl {
+        -OrderRepository orderRepository
+        -UserService userService
+        -ProductService productService
+        --
+        +createOrder(User customer, String notes): Order
+        +createOrder(Long customerId, String notes): Order
+        +addItemToOrder(Long orderId, Product product, int quantity, BigDecimal unitPrice): Order
+        +addItemToOrder(Long orderId, Long productId, int quantity): Order
+        +removeItemFromOrder(Long orderId, Long itemId): Order
+        +updateItemQuantity(Long orderId, Long itemId, int newQuantity): Order
+        +confirmOrder(Long orderId): Order
+        +startPreparingOrder(Long orderId): Order
+        +markOrderAsReady(Long orderId): Order
+        +deliverOrder(Long orderId): Order
+        +cancelOrder(Long orderId): Order
+        +findAll(): List<Order>
+        +findByStatus(OrderStatus status): List<Order>
+        +findByCustomerId(Long customerId): List<Order>
+        +getTotalRevenue(): BigDecimal
+        +getActiveOrderCount(): long
+    }
+
+    interface InventoryService {
+        +createInventory(Product product, int currentQuantity, int minimumStockLevel, int maximumStockLevel, int reorderPoint, int reorderQuantity): Inventory
+        +updateInventory(Long id, int currentQuantity, int minimumStockLevel, int maximumStockLevel, int reorderPoint, int reorderQuantity): Inventory
+        +updateQuantity(Long id, int quantity): Inventory
+        +addQuantity(Long id, int quantity): Inventory
+        +removeQuantity(Long id, int quantity): Inventory
+        +findById(Long id): Optional<Inventory>
+        +findByProduct(Product product): Optional<Inventory>
+        +findAll(): List<Inventory>
+        +findLowStockInventories(): List<Inventory>
+        +findInventoriesAtReorderPoint(): List<Inventory>
+        +findOutOfStockInventories(): List<Inventory>
+        +findOverstockedInventories(): List<Inventory>
+        +existsByProduct(Product product): boolean
+    }
+
+    class InventoryServiceImpl {
+        -InventoryRepository inventoryRepository
+        --
+        +createInventory(Product product, int currentQuantity, int minimumStockLevel, int maximumStockLevel, int reorderPoint, int reorderQuantity): Inventory
+        +updateInventory(Long id, int currentQuantity, int minimumStockLevel, int maximumStockLevel, int reorderPoint, int reorderQuantity): Inventory
+        +updateQuantity(Long id, int quantity): Inventory
+        +addQuantity(Long id, int quantity): Inventory
+        +removeQuantity(Long id, int quantity): Inventory
+        +findById(Long id): Optional<Inventory>
+        +findByProduct(Product product): Optional<Inventory>
+        +findAll(): List<Inventory>
+        +findLowStockInventories(): List<Inventory>
+        +findInventoriesAtReorderPoint(): List<Inventory>
+        +findOutOfStockInventories(): List<Inventory>
+        +findOverstockedInventories(): List<Inventory>
+        +existsByProduct(Product product): boolean
+    }
+}
+
+' Service implementations
+CategoryService <|.. CategoryServiceImpl
+ProductService <|.. ProductServiceImpl
+OrderService <|.. OrderServiceImpl
+InventoryService <|.. InventoryServiceImpl
+
+' Service dependencies
+OrderServiceImpl --> UserService : uses
+OrderServiceImpl --> ProductService : uses
+ProductServiceImpl --> CategoryService : uses (indirectly)
+InventoryServiceImpl --> ProductService : uses (indirectly)
+
+' Annotations
+note top of CategoryServiceImpl : @Service\n@Transactional\n@RequiredArgsConstructor
+note top of ProductServiceImpl : @Service\n@Transactional\n@RequiredArgsConstructor
+note top of UserService : @Service\n@Transactional\n@RequiredArgsConstructor
+note top of OrderServiceImpl : @Service\n@Transactional
+note top of InventoryServiceImpl : @Service\n@Transactional
+
+@enduml

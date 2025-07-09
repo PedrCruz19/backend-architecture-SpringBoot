@@ -1,0 +1,72 @@
+@startuml Overall_System_Architecture
+!theme plain
+title eCafeteria XXI - Overall System Architecture
+
+package "Presentation Layer" as presentation {
+    [REST Controllers] as controllers
+    [Authentication API] as auth_api
+    [Health Check API] as health_api
+    [Exception Handlers] as exception_handlers
+}
+
+package "Application Layer" as application {
+    [Category Service] as cat_service
+    [Product Service] as prod_service
+    [User Service] as user_service
+    [Order Service] as order_service
+    [Inventory Service] as inv_service
+}
+
+package "Domain Layer" as domain {
+    [Category Domain] as cat_domain
+    [Product Domain] as prod_domain
+    [User Domain] as user_domain
+    [Order Domain] as order_domain
+    [Inventory Domain] as inv_domain
+    [Domain Value Objects] as value_objects
+}
+
+package "Infrastructure Layer" as infrastructure {
+    [JPA Repositories] as jpa_repos
+    [Spring Data] as spring_data
+    [Database Adapters] as db_adapters
+    [Configuration] as config
+}
+
+package "Cross-Cutting Concerns" as crosscutting {
+    [Security] as security
+    [Caching] as caching
+    [Validation] as validation
+    [Logging] as logging
+    [Exception Handling] as exceptions
+}
+
+database "PostgreSQL" as postgres {
+    [Categories Table] as cat_table
+    [Products Table] as prod_table
+    [Users Table] as user_table
+    [Orders Table] as order_table
+    [Order Items Table] as order_items_table
+    [Inventory Table] as inv_table
+}
+
+' Connections
+controllers --> application
+auth_api --> user_service
+health_api --> application
+
+application --> domain
+application --> infrastructure
+
+domain --> value_objects
+
+infrastructure --> spring_data
+spring_data --> postgres
+
+security ..> controllers
+caching ..> application
+validation ..> controllers
+logging ..> application
+exceptions ..> controllers
+
+@enduml

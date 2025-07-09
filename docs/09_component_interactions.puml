@@ -1,0 +1,166 @@
+@startuml Component_Interactions
+!theme plain
+title eCafeteria XXI - Component Interactions & Business Flows
+
+' Order Processing Flow
+@startuml Order_Processing_Flow
+!theme plain
+title Order Processing Flow
+
+participant Customer
+participant OrderResource
+participant OrderService
+participant ProductService
+participant InventoryService
+participant UserService
+participant OrderRepository
+participant ProductRepository
+participant InventoryRepository
+
+Customer -> OrderResource : POST /api/orders\n{customerId, notes}
+OrderResource -> UserService : getUser(customerId)
+UserService -> OrderResource : User
+OrderResource -> OrderService : createOrder(customerId, notes)
+OrderService -> OrderRepository : save(new Order)
+OrderRepository -> OrderService : Order
+OrderService -> OrderResource : Order
+OrderResource -> Customer : ApiResponse<Order>
+
+Customer -> OrderResource : POST /api/orders/{id}/items\n{productId, quantity}
+OrderResource -> OrderService : addItemToOrder(orderId, productId, quantity)
+OrderService -> ProductService : getById(productId)
+ProductService -> OrderService : Product
+OrderService -> OrderRepository : save(updatedOrder)
+OrderService -> InventoryService : removeQuantity(productId, quantity)
+InventoryService -> OrderService : Updated Inventory
+OrderService -> OrderResource : Updated Order
+OrderResource -> Customer : ApiResponse<Order>
+
+Customer -> OrderResource : PATCH /api/orders/{id}/confirm
+OrderResource -> OrderService : confirmOrder(orderId)
+OrderService -> OrderRepository : save(confirmedOrder)
+OrderService -> OrderResource : Confirmed Order
+OrderResource -> Customer : ApiResponse<Order>
+@enduml
+
+' Inventory Management Flow
+@startuml Inventory_Management_Flow
+!theme plain
+title Inventory Management Flow
+
+participant Staff
+participant InventoryResource
+participant InventoryService
+participant ProductService
+participant InventoryRepository
+
+Staff -> InventoryResource : GET /api/inventory/low-stock
+InventoryResource -> InventoryService : findLowStockInventories()
+InventoryService -> InventoryRepository : findBelowMinimumStock()
+InventoryRepository -> InventoryService : List<Inventory>
+InventoryService -> InventoryResource : List<Inventory>
+InventoryResource -> Staff : ApiResponse<List<Inventory>>
+
+Staff -> InventoryResource : PATCH /api/inventory/{id}/add-quantity\n{quantity}
+InventoryResource -> InventoryService : addQuantity(id, quantity)
+InventoryService -> InventoryRepository : save(updatedInventory)
+InventoryService -> ProductService : updateStock(productId, newQuantity)
+ProductService -> InventoryService : Updated Product
+InventoryService -> InventoryResource : Updated Inventory
+InventoryResource -> Staff : ApiResponse<Inventory>
+@enduml
+
+' Product Catalog Management Flow
+@startuml Product_Catalog_Management
+!theme plain
+title Product Catalog Management
+
+participant Admin
+participant ProductResource
+participant ProductService
+participant CategoryService
+participant InventoryService
+participant ProductRepository
+participant InventoryRepository
+
+Admin -> ProductResource : POST /api/products\n{name, description, price, categoryId, stock}
+ProductResource -> CategoryService : getById(categoryId)
+CategoryService -> ProductResource : Category
+ProductResource -> ProductService : createProduct(request)
+ProductService -> ProductRepository : save(new Product)
+ProductRepository -> ProductService : Product
+ProductService -> InventoryService : createInventory(product, defaultValues)
+InventoryService -> InventoryRepository : save(new Inventory)
+InventoryService -> ProductService : Inventory
+ProductService -> ProductResource : Product
+ProductResource -> Admin : ApiResponse<Product>
+
+Admin -> ProductResource : PUT /api/products/{id}\n{updatedData}
+ProductResource -> ProductService : editProduct(id, request)
+ProductService -> ProductRepository : save(updatedProduct)
+ProductService -> ProductResource : Updated Product
+ProductResource -> Admin : ApiResponse<Product>
+@enduml
+
+' User Authentication & Authorization Flow
+@startuml User_Authentication_Flow
+!theme plain
+title User Authentication & Authorization Flow
+
+participant Client
+participant AuthApi
+participant SecurityConfig
+participant UserService
+participant UserRepository
+participant JwtEncoder
+
+Client -> AuthApi : POST /api/auth/login\n{username, password}
+AuthApi -> UserService : loadUserByUsername(username)
+UserService -> UserRepository : findByUsername(username)
+UserRepository -> UserService : Optional<User>
+UserService -> AuthApi : UserDetails
+AuthApi -> SecurityConfig : authenticate(credentials)
+SecurityConfig -> AuthApi : Authentication
+AuthApi -> JwtEncoder : encode(authentication)
+JwtEncoder -> AuthApi : JWT Token
+AuthApi -> Client : JWT Token
+
+note over Client : Store JWT for subsequent requests
+
+Client -> ProductResource : GET /api/products\nAuthorization: Bearer {JWT}
+ProductResource -> SecurityConfig : Validate JWT
+SecurityConfig -> ProductResource : Authentication Context
+ProductResource -> ProductService : findActiveProducts()
+ProductService -> ProductResource : List<Product>
+ProductResource -> Client : ApiResponse<List<Product>>
+@enduml
+
+' Caching Strategy Flow
+@startuml Caching_Strategy
+!theme plain
+title Caching Strategy
+
+participant Controller
+participant CacheManager
+participant Service
+participant Repository
+
+Controller -> CacheManager : @Cacheable("products", key="#id")
+CacheManager -> Controller : Cache Miss
+Controller -> Service : getById(id)
+Service -> Repository : findById(id)
+Repository -> Service : Entity
+Service -> Controller : Domain Object
+Controller -> CacheManager : Store in Cache
+CacheManager -> Controller : Cached Data
+Controller -> Controller : Return Cached Data
+
+note over Controller : Subsequent requests return from cache
+
+Controller -> Service : updateProduct(id, data)
+Service -> Repository : save(updatedEntity)
+Controller -> CacheManager : @CacheEvict("products", allEntries=true)
+CacheManager -> Controller : Cache Invalidated
+@enduml
+
+@enduml
