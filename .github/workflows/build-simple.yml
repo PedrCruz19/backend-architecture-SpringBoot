@@ -1,4 +1,4 @@
-name: Build and Test
+name: Build and Test (No Dependency Submission)
 
 on:
   push:
@@ -9,10 +9,6 @@ on:
 permissions:
   contents: read
   actions: read
-  pull-requests: read
-  security-events: write
-  metadata: read
-  packages: read
 
 jobs:
   build:
@@ -35,7 +31,6 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
 
-    # Make Maven wrapper executable (if it exists)
     - name: Make Maven wrapper executable
       run: |
         if [ -f "./mvnw" ]; then
@@ -45,7 +40,6 @@ jobs:
           echo "No Maven wrapper found, will use system Maven"
         fi
 
-    # Use Maven wrapper if available, otherwise use system Maven
     - name: Build with Maven
       run: |
         if [ -f "./mvnw" ]; then
@@ -62,12 +56,11 @@ jobs:
           mvn test
         fi
 
-    # Only submit dependencies on push to main/master (not on PRs)
-    - name: Submit Dependency Snapshot
-      if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-      uses: advanced-security/maven-dependency-submission-action@v4
-      with:
-        ignore-maven-wrapper: true
-        directory: ${{ github.workspace }}
-        # Use GITHUB_TOKEN explicitly
-        token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Generate test report
+      if: always()
+      run: |
+        if [ -f "./mvnw" ]; then
+          ./mvnw surefire-report:report
+        else
+          mvn surefire-report:report
+        fi
