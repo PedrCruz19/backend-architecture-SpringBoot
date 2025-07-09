@@ -187,6 +187,11 @@ jspm_packages/
 .env.local
 
 ### Security & Sensitive Files ###
+# Environment files with secrets
+.env
+.env.*
+!.env.example
+
 # Private keys (keep your RSA keys secure)
 *.key
 *.pem
@@ -195,11 +200,14 @@ jspm_packages/
 *.jks
 *.keystore
 *.truststore
+rsa.private.key
+rsa.public.key
 
 # Environment specific configurations
 application-local.properties
 application-secret.properties
 *-secret.properties
+*-credentials.properties
 
 # Database files
 *.db
@@ -230,7 +238,7 @@ log/
 Thumbs.db
 ehthumbs.db
 Desktop.ini
-$RECYCLE.BIN/
+$RECYCLE_BIN/
 
 # macOS
 .DS_Store
