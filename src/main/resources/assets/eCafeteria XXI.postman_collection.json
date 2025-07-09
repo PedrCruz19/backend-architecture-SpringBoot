@@ -1,0 +1,2826 @@
+{
+	"info": {
+		"_postman_id": "7711ae43-90e4-4365-a4ff-7423acc386be",
+		"name": "backend architecture",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1425498",
+		"_collection_link": "https://lively-escape-360163.postman.co/workspace/EAPLI~daf07218-5ca9-4532-b501-ded9e6ef45a1/collection/1425498-7711ae43-90e4-4365-a4ff-7423acc386be?action=share&creator=1425498&source=collection_link"
+	},
+	"item": [
+		{
+			"name": "doc",
+			"item": [
+				{
+					"name": "OpenAPI",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api-docs",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api-docs",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Swagger UI",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/swagger-ui",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"swagger-ui"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Authz",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Authtenticates\", function(){\r",
+									"\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    let token = postman.getResponseHeader(\"Authorization\");\r",
+									"    pm.environment.set(\"token\", token);    \r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"bar@email.com\",\r\n    \"password\":\"bar123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}{{baseUrl}}/public/login",
+							"host": [
+								"{{host}}{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login (user admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Authtenticates\", function(){\r",
+									"\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    let token = postman.getResponseHeader(\"Authorization\");\r",
+									"    pm.environment.set(\"tokenUserAdmin\", token);    \r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"u1@mail.com\",\r\n    \"password\":\"Password1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}{{baseUrl}}/public/login",
+							"host": [
+								"{{host}}{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"bar@email.com\",\r\n    \"fullName\":\"Mary Bar\",\r\n    \"password\":\"bar123\",\r\n    \"rePassword\":\"bar123\",\r\n    \"authorities\":[\"DISH_ADMIN\"]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}{{baseUrl}}/public/register",
+							"host": [
+								"{{host}}{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login as Adam (meal manager)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Authtenticates\", function(){\r",
+									"\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    let token = postman.getResponseHeader(\"Authorization\");\r",
+									"    pm.environment.set(\"token\", token);    \r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"adam@mail.com\",\r\n    \"password\":\"myMy123!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}{{baseUrl}}/public/login",
+							"host": [
+								"{{host}}{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User management",
+			"item": [
+				{
+					"name": "user search",
+					"item": [
+						{
+							"name": "Search user by username",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"query\":{\r\n        \"username\":\"u1@mail.com\"\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/admin/user/search",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"user",
+										"search"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Search user by username or fullname",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"page\":{\r\n        \"number\":\"1\",\r\n        \"limit\":\"10\"\r\n    },\r\n    \"query\":{\r\n        \"username\":\"mary1@mail.com\",\r\n        \"fullName\":\"Two\"\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/admin/user/search",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"user",
+										"search"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Search all page 1",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"page\":{\r\n        \"number\":\"1\",\r\n        \"limit\":\"5\"\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/admin/user/search",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"user",
+										"search"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Search all page 2",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"page\":{\r\n        \"number\":\"2\",\r\n        \"limit\":\"5\"\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/admin/user/search",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"user",
+										"search"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{tokenUserAdmin}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Allergens",
+			"item": [
+				{
+					"name": "public",
+					"item": [
+						{
+							"name": "Get all",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/allergen",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"allergen"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get by id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/allergen/crustaceos",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"allergen",
+										"crustaceos"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get image",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/allergen/peixes/image",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"allergen",
+										"peixes",
+										"image"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Organizational structure",
+			"item": [
+				{
+					"name": "public",
+					"item": [
+						{
+							"name": "Get all org units",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/orgunit",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"orgunit"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get OU by id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/orgunit/ISEP",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"orgunit",
+										"ISEP"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get all cafeterias of org unit",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/orgunit/ISEP/cafe",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"orgunit",
+										"ISEP",
+										"cafe"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get a cafeteria of an org unit",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/orgunit/ISEP/cafe/Bar F",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"orgunit",
+										"ISEP",
+										"cafe",
+										"Bar F"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Dish Type management",
+			"item": [
+				{
+					"name": "Public",
+					"item": [
+						{
+							"name": "Get all",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dishtype",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dishtype"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get by id",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ok\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"    let foo1etag = postman.getResponseHeader(\"ETag\");\r",
+											"    pm.environment.set(\"foo1etag\", foo1etag);    \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dishtype/peixe",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dishtype",
+										"peixe"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get by id unexisting",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Not found\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(404);    \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dishtype/0",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dishtype",
+										"0"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Private",
+					"item": [
+						{
+							"name": "Create New \"Peixe\"",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Created\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(201); \r",
+											"\r",
+											"        let foo1etag = postman.getResponseHeader(\"ETag\");\r",
+											"    pm.environment.set(\"foo1etag\", foo1etag); \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"shortDescription\":\"coisas do mar\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dishtype/peixe",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dishtype",
+										"peixe"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create New random",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Created\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(201); \r",
+											"\r",
+											"        let foo1etag = postman.getResponseHeader(\"ETag\");\r",
+											"    pm.environment.set(\"foo1etag\", foo1etag); \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"shortDescription\":\"some dish type description\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dishtype/{{$randomNoun}}",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dishtype",
+										"{{$randomNoun}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create New (w/ optional fields)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Created\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(201); \r",
+											"\r",
+											"        let foo1etag = postman.getResponseHeader(\"ETag\");\r",
+											"    pm.environment.set(\"foo1etag\", foo1etag); \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.environment.set(\"randomFooName\", pm.variables.replaceIn('{{$randomNoun}}'))"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"shortDescription\":\"{{$randomLoremSentence}}\",\r\n    \"longDescription\":\"{{$randomLoremSentence}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dishtype/{{randomFooName}}",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dishtype",
+										"{{randomFooName}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create New without mandatory fields",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Created\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(201); \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.environment.set(\"randomFooName\", pm.variables.replaceIn('{{$randomNoun}}'))"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"longDescription\":\"{{$randomLoremSentence}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dishtype/{{randomFooName}}",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dishtype",
+										"{{randomFooName}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create New - already exiting name",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Conflict\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(409); \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"shortDescription\":\"some dish type description\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dishtype/peixe",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dishtype",
+										"peixe"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create New - invalid value of field",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Bad request\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(400); \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.environment.set(\"randomFooName\", pm.variables.replaceIn('{{$randomNoun}}'))"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"shortDescription\":\"abcdefg\",\r\n    \"longDescription\":\"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dishtype/{{randomFooName}}",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dishtype",
+										"{{randomFooName}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create New - invalid name",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Bad request\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(400); \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"shortDescription\":\"0123456\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dishtype/abc def",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dishtype",
+										"abc def"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create New - invalid name - too long",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Bad request\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(400); \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"shortDescription\":\"0123456\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dishtype/abcdefghijklmopqrstuvwxyz0123456789_",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dishtype",
+										"abcdefghijklmopqrstuvwxyz0123456789_"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Replace existing",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ok\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"    let foo1etag = postman.getResponseHeader(\"ETag\");\r",
+											"    pm.environment.set(\"foo1etag\", foo1etag);    \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "If-Match",
+										"value": "{{foo1etag}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"shortDescription\": \"{{$randomLoremSentence}}\",\r\n    \"longDescription\": \"{{$randomLoremParagraph}}\"\r\n    }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dishtype/peixe",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dishtype",
+										"peixe"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Replace existing by setting only mandatory - other fields are unset",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ok\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"    let foo1etag = postman.getResponseHeader(\"ETag\");\r",
+											"    pm.environment.set(\"foo1etag\", foo1etag);    \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "If-Match",
+										"value": "{{foo1etag}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"shortDescription\":\"0123456\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dishtype/peixe",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dishtype",
+										"peixe"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Replace existing with invalid etag",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Conflict\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(409);    \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "If-Match",
+										"value": "-1",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"shortDescription\":\"0123456\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dishtype/peixe",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dishtype",
+										"peixe"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update existing all fields",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ok\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"    let foo1etag = postman.getResponseHeader(\"ETag\");\r",
+											"    pm.environment.set(\"foo1etag\", foo1etag);    \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "If-Match",
+										"value": "{{foo1etag}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n   \"shortDescription\": \"{{$randomLoremSentence}}\",\r\n    \"longDescription\": \"{{$randomLoremParagraph}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dishtype/peixe",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dishtype",
+										"peixe"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update existing just shortDescription - other fields remain the same",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ok\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"    let foo1etag = postman.getResponseHeader(\"ETag\");\r",
+											"    pm.environment.set(\"foo1etag\", foo1etag);    \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "If-Match",
+										"value": "{{foo1etag}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n   \"shortDescription\": \"{{$randomLoremSentence}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dishtype/peixe",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dishtype",
+										"peixe"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete existing",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ok\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"    pm.environment.set(\"foo1etag\", null);    \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "If-Match",
+										"value": "{{foo1etag}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dishtype/peixe",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dishtype",
+										"peixe"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete existing with wrong if-match",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Conflict\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(409);    \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "If-Match",
+										"value": "\"-1\"",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dishtype/peixe",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dishtype",
+										"peixe"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete existing without if-match",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Bad request\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(400);    \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dishtype/peixe",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dishtype",
+										"peixe"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete unexisting",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Not found\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(404);    \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "If-Match",
+										"value": "{{foo1etag}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dishtype/0",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dishtype",
+										"0"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "toogle state of existing",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "If-Match",
+										"value": "{{foo1etag}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dishtype/peixe/state",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dishtype",
+										"peixe",
+										"state"
+									],
+									"query": [
+										{
+											"key": "",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"auth": {
+						"type": "bearer",
+						"bearer": [
+							{
+								"key": "token",
+								"value": "{{token}}",
+								"type": "string"
+							}
+						]
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Dish management",
+			"item": [
+				{
+					"name": "Public",
+					"item": [
+						{
+							"name": "Get all",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dish",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dish"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get by id",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ok\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"    let foo1etag = postman.getResponseHeader(\"ETag\");\r",
+											"    pm.environment.set(\"foo1etag\", foo1etag);    \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dish/{{bacalhauUUID}}",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dish",
+										"{{bacalhauUUID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get by id unexisting",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Not found\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(404);    \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dish/6856facb-cec1-4bea-9264-d2c356292489",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dish",
+										"6856facb-cec1-4bea-9264-d2c356292489"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Private",
+					"item": [
+						{
+							"name": "Create New \"Bacalhau à bráz\"",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Created\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(201); \r",
+											"\r",
+											"    var jsonData = pm.response.json();\r",
+											"    console.log(jsonData);\r",
+											"    pm.environment.set(\"bacalhauUUID\", jsonData.id);\r",
+											"\r",
+											"    let foo1etag = postman.getResponseHeader(\"ETag\");\r",
+											"    pm.environment.set(\"foo1etag\", foo1etag);    \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\":\"Bacalhau à Bráz ({{$randomNoun}})\",\r\n    \"dishType\":\"peixe\",\r\n    \"shortDescription\":\"realmente delicioso mas não sei o nome\",\r\n    \"price\":\"3.49 EUR\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dish",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dish"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create New random",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Created\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(201); \r",
+											"\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.environment.set(\"otherDishUUID\", jsonData.id);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\":\"{{$randomNoun}}\",\r\n    \"dishType\":\"carne\",\r\n    \"shortDescription\":\"{{$randomLoremSentence}}\",\r\n    \"price\":\"3.49 EUR\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dish",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dish"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create New (w/ optional fields)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Created\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(201); \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.environment.set(\"randomFooName\", pm.variables.replaceIn('{{$randomNoun}}'))"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\":\"{{$randomNoun}}\",\r\n    \"dishType\":\"peixe\",\r\n    \"shortDescription\":\"{{$randomLoremSentence}}\",\r\n    \"longDescription\":\"{{$randomLoremParagraph}}\",\r\n    \"price\":\"3.49 EUR\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dish",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dish"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create New without mandatory fields",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Created\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(201); \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.environment.set(\"randomFooName\", pm.variables.replaceIn('{{$randomNoun}}'))"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"dishType\":\"peixe\",\r\n    \"shortDescription\":\"{{$randomLoremSentence}}\",\r\n    \"longDescription\":\"{{$randomLoremParagraph}}\",\r\n    \"price\":\"3.49 EUR\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dish",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dish"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create New - invalid dish type",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Bad request\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(400); \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.environment.set(\"randomFooName\", pm.variables.replaceIn('{{$randomNoun}}'))"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\":\"{{$randomNoun}}\",\r\n    \"dishType\":\"0\",\r\n    \"shortDescription\":\"{{$randomLoremSentence}}\",\r\n    \"longDescription\":\"{{$randomLoremParagraph}}\",\r\n    \"price\":\"3.49 EUR\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dish",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dish"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Replace existing",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ok\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"    let foo1etag = postman.getResponseHeader(\"ETag\");\r",
+											"    pm.environment.set(\"foo1etag\", foo1etag);    \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "If-Match",
+										"value": "{{foo1etag}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\":\"(*edited*) Bacalhau à Bráz (ou zé do pipo?)\",\r\n    \"dishType\":\"peixe\",\r\n    \"shortDescription\":\"(*edited*) realmente delicioso mas não sei o nome\",\r\n    \"longDescription\":\"{{$randomLoremParagraph}}\",\r\n    \"price\":\"11.99 EUR\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dish/{{bacalhauUUID}}",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dish",
+										"{{bacalhauUUID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Replace existing by setting only mandatory - other fields are unset",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ok\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"    let foo1etag = postman.getResponseHeader(\"ETag\");\r",
+											"    pm.environment.set(\"foo1etag\", foo1etag);    \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "If-Match",
+										"value": "{{foo1etag}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\":\"(*edited*) Bacalhau à Bráz (ou zé do pipo?)\",\r\n    \"dishType\":\"peixe\",\r\n    \"shortDescription\":\"(*edited*) realmente delicioso mas não sei o nome\",\r\n    \"price\":\"11.99 EUR\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dish/{{bacalhauUUID}}",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dish",
+										"{{bacalhauUUID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Replace existing with invalid etag",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Conflict\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(409);    \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "If-Match",
+										"value": "-1",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\":\"(*edited*) Bacalhau à Bráz (ou zé do pipo?)\",\r\n    \"dishType\":\"peixe\",\r\n    \"shortDescription\":\"(*edited*) realmente delicioso mas não sei o nome\",\r\n    \"longDescription\":\"{{$randomLoremParagraph}}\",\r\n    \"price\":\"11.99 EUR\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dish/{{bacalhauUUID}}",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dish",
+										"{{bacalhauUUID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update existing all fields",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ok\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"    let foo1etag = postman.getResponseHeader(\"ETag\");\r",
+											"    pm.environment.set(\"foo1etag\", foo1etag);    \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "If-Match",
+										"value": "{{foo1etag}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\":\"(*edited*) Bacalhau à Bráz (ou zé do pipo?)\",\r\n    \"dishType\":\"peixe\",\r\n    \"shortDescription\":\"(*edited*) realmente delicioso mas não sei o nome\",\r\n    \"longDescription\":\"{{$randomLoremParagraph}}\",\r\n    \"price\":\"11.99 EUR\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dish/{{bacalhauUUID}}",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dish",
+										"{{bacalhauUUID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update existing just one field - other remain the same",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ok\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"    let foo1etag = postman.getResponseHeader(\"ETag\");\r",
+											"    pm.environment.set(\"foo1etag\", foo1etag);    \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "If-Match",
+										"value": "{{foo1etag}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\":\"(*more edited*) Bacalhau à Bráz (ou zé do pipo?)\",\r\n    \"dishType\":\"peixe\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dish/{{bacalhauUUID}}",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dish",
+										"{{bacalhauUUID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete existing",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ok\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"    pm.environment.set(\"foo1etag\", null);    \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "If-Match",
+										"value": "{{foo1etag}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dish/{{bacalhauUUID}}",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dish",
+										"{{bacalhauUUID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete existing with wrong if-match",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Conflict\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(409);    \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "If-Match",
+										"value": "\"-1\"",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dish/{{bacalhauUUID}}",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dish",
+										"{{bacalhauUUID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete existing without if-match",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Bad request\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(400);    \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dish/{{bacalhauUUID}}",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dish",
+										"{{bacalhauUUID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete unexisting",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Not found\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(404);    \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "If-Match",
+										"value": "{{foo1etag}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dish/6856facb-cec1-4bea-9264-d2c356292489",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dish",
+										"6856facb-cec1-4bea-9264-d2c356292489"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "toogle state of existing",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "If-Match",
+										"value": "{{foo1etag}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/dish/{{bacalhauUUID}}/state",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"dish",
+										"{{bacalhauUUID}}",
+										"state"
+									],
+									"query": [
+										{
+											"key": "",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"auth": {
+						"type": "bearer",
+						"bearer": [
+							{
+								"key": "token",
+								"value": "{{token}}",
+								"type": "string"
+							}
+						]
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Dish reporting",
+			"item": [
+				{
+					"name": "High calories dishes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}{{baseUrl}}/reporting/dish/high-calories-dishes",
+							"host": [
+								"{{host}}{{baseUrl}}"
+							],
+							"path": [
+								"reporting",
+								"dish",
+								"high-calories-dishes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Dishes per dish type",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}{{baseUrl}}/reporting/dish/dishes-per-dishtype",
+							"host": [
+								"{{host}}{{baseUrl}}"
+							],
+							"path": [
+								"reporting",
+								"dish",
+								"dishes-per-dishtype"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Dishes per caloric category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}{{baseUrl}}/reporting/dish/dishes-per-caloric-category",
+							"host": [
+								"{{host}}{{baseUrl}}"
+							],
+							"path": [
+								"reporting",
+								"dish",
+								"dishes-per-caloric-category"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Dishes per caloric category (tuples)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}{{baseUrl}}/reporting/dish/dishes-per-caloric-category-tuples",
+							"host": [
+								"{{host}}{{baseUrl}}"
+							],
+							"path": [
+								"reporting",
+								"dish",
+								"dishes-per-caloric-category-tuples"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Meal management",
+			"item": [
+				{
+					"name": "Public",
+					"item": [
+						{
+							"name": "Get all",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/meal",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"meal"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get by id",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ok\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"    let foo1etag = postman.getResponseHeader(\"ETag\");\r",
+											"    pm.environment.set(\"foo1etag\", foo1etag);    \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/meal/65",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"meal",
+										"65"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get by id unexisting",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Not found\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(404);    \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/meal/0",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"meal",
+										"0"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "private",
+					"item": [
+						{
+							"name": "Meal plan",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"from\": \"2023-07-11\",\r\n    \"to\": \"2023-07-11\",\r\n    \"cafeteriaName\":\"ISEP/cantina\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/mealplan",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"mealplan"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Meal plan & save",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"from\": \"2023-07-11\",\r\n    \"to\": \"2023-07-11\",\r\n    \"cafeteriaName\":\"ISEP/cantina\",\r\n    \"createMeals\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/mealplan",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"mealplan"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create meal for lunch 2023-07-17",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ok\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(201);\r",
+											"\r",
+											"    let foo1etag = postman.getResponseHeader(\"ETag\");\r",
+											"    pm.environment.set(\"foo1etag\", foo1etag);\r",
+											"\r",
+											"    let res = pm.response.json();\r",
+											"    pm.environment.set(\"mealID\", res.id);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ofDay\":\"2023-07-17\",\r\n    \"dish\":\"{{bacalhauUUID}}\",\r\n    \"mealType\":\"LUNCH\",\r\n    \"cafeteriaName\":\"ISEP/cantina\"\r\n    }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/meal",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"meal"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Replace meal for lunch 2023-07-17",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ok\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"    let foo1etag = postman.getResponseHeader(\"ETag\");\r",
+											"    pm.environment.set(\"foo1etag\", foo1etag);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "If-Match",
+										"value": "{{foo1etag}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"dish\":\"{{otherDishUUID}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/meal/{{mealID}}",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"meal",
+										"{{mealID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Replace meal for lunch 2023-07-17 with extra ignored fields",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ok\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"    let foo1etag = postman.getResponseHeader(\"ETag\");\r",
+											"    pm.environment.set(\"foo1etag\", foo1etag);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "If-Match",
+										"value": "{{foo1etag}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ofDay\":\"2023-01-01\",\r\n    \"dish\":\"{{bacalhauUUID}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/meal/{{mealID}}",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"meal",
+										"{{mealID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update meal for lunch 2023-07-17",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ok\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"    let foo1etag = postman.getResponseHeader(\"ETag\");\r",
+											"    pm.environment.set(\"foo1etag\", foo1etag);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "If-Match",
+										"value": "{{foo1etag}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"dish\":\"{{otherDishUUID}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/meal/{{mealID}}",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"meal",
+										"{{mealID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete meal for lunch 2023-07-17",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Ok\", function(){\r",
+											"\r",
+											"    pm.response.to.have.status(204);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "If-Match",
+										"value": "{{foo1etag}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{baseUrl}}/meal/{{mealID}}",
+									"host": [
+										"{{host}}{{baseUrl}}"
+									],
+									"path": [
+										"meal",
+										"{{mealID}}"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"auth": {
+						"type": "bearer",
+						"bearer": [
+							{
+								"key": "token",
+								"value": "{{token}}",
+								"type": "string"
+							}
+						]
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}
